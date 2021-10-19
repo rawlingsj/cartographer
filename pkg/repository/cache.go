@@ -16,6 +16,7 @@ package repository
 
 import (
 	"fmt"
+	"github.com/go-logr/logr"
 	"reflect"
 	"time"
 
@@ -24,7 +25,7 @@ import (
 
 const submittedCachePrefix = "submitted"
 const persistedCachePrefix = "persisted"
-const CacheExpiryDuration = 1 * time.Hour
+const CacheExpiryDuration = 30 * time.Second //FIXME: duration lowered for testing // * time.Hour
 
 //counterfeiter:generate . ExpiringCache
 type ExpiringCache interface {
@@ -39,14 +40,16 @@ type RepoCache interface {
 	Refresh(submitted *unstructured.Unstructured)
 }
 
-func NewCache(c ExpiringCache) RepoCache {
+func NewCache(c ExpiringCache, l logr.Logger) RepoCache {
 	return &cache{
 		ec: c,
+		logger: l,
 	}
 }
 
 type cache struct {
 	ec ExpiringCache
+	logger logr.Logger
 }
 
 func (c *cache) Set(submitted, persisted *unstructured.Unstructured) {
@@ -76,24 +79,33 @@ func (c *cache) UnchangedSinceCached(submitted *unstructured.Unstructured, exist
 	persistedCached := c.getPersistedCached(persistedKey)
 
 	if !submittedUnchanged {
+		if submittedCached != nil {
+			c.logger.Info("cache miss: submitted object in cache is different from submitted object")
+		} else {
+			c.logger.Info("cache miss: object not in cache")
+		}
 		return nil
 	}
 
 	for _, existing := range existingList {
 		existingSpec, ok := existing.Object["spec"]
 		if !ok {
+			c.logger.Info("cache miss: object on apiserver has no spec")
 			continue
 		}
 
 		persistedCachedSpec, ok := persistedCached.Object["spec"]
 		if !ok {
+			c.logger.Info("cache miss: persisted object in cache has no spec")
 			continue
 		}
 
 		sameSame := reflect.DeepEqual(existingSpec, persistedCachedSpec)
 		if sameSame {
+			c.logger.Info("cache hit: persisted object in cache matches spec on apiserver")
 			return existing
 		} else {
+			c.logger.Info("cache miss: persisted object in cache DOES NOT match spec on apiserver")
 			continue
 		}
 	}
