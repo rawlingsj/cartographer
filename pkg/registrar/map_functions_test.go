@@ -17,6 +17,7 @@ package registrar_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -24,7 +25,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/registrar"
 	"github.com/vmware-tanzu/cartographer/pkg/registrar/registrarfakes"
 )
@@ -46,8 +46,8 @@ var _ = Describe("MapFunctions", func() {
 			fakeClientBuilder = fake.NewClientBuilder()
 			fakeLogger = &registrarfakes.FakeLogger{}
 
-			clusterSupplyChain = &v1alpha1.ClusterSupplyChain{
-				Spec: v1alpha1.SupplyChainSpec{
+			clusterSupplyChain = &v1alpha12.ClusterSupplyChain{
+				Spec: v1alpha12.SupplyChainSpec{
 					Selector: map[string]string{
 						"myLabel": "myLabelsValue",
 					},
@@ -85,13 +85,13 @@ var _ = Describe("MapFunctions", func() {
 		Context("client does not return errors", func() {
 			BeforeEach(func() {
 				// By including the scheme, the client will not error when handed our Objects
-				err := v1alpha1.AddToScheme(scheme)
+				err := v1alpha12.AddToScheme(scheme)
 				Expect(err).ToNot(HaveOccurred())
 			})
 			Context("no workloads", func() {
 				BeforeEach(func() {
-					clusterSupplyChain = &v1alpha1.ClusterSupplyChain{
-						Spec: v1alpha1.SupplyChainSpec{
+					clusterSupplyChain = &v1alpha12.ClusterSupplyChain{
+						Spec: v1alpha12.SupplyChainSpec{
 							Selector: map[string]string{
 								"myLabel": "myLabelsValue",
 							},
@@ -103,9 +103,9 @@ var _ = Describe("MapFunctions", func() {
 				})
 			})
 			Context("workloads", func() {
-				var workload *v1alpha1.Workload
+				var workload *v1alpha12.Workload
 				BeforeEach(func() {
-					workload = &v1alpha1.Workload{
+					workload = &v1alpha12.Workload{
 						ObjectMeta: metav1.ObjectMeta{
 							Name:      "first-workload",
 							Namespace: "first-namespace",
@@ -153,7 +153,7 @@ var _ = Describe("MapFunctions", func() {
 
 			Context("when function is passed an object that is not a supplyChain", func() {
 				BeforeEach(func() {
-					clusterSupplyChain = &v1alpha1.Workload{}
+					clusterSupplyChain = &v1alpha12.Workload{}
 				})
 				It("logs a helpful error", func() {
 					Expect(result).To(BeEmpty())
@@ -183,8 +183,8 @@ var _ = Describe("MapFunctions", func() {
 			fakeClientBuilder = fake.NewClientBuilder()
 			fakeLogger = &registrarfakes.FakeLogger{}
 
-			clusterDelivery = &v1alpha1.ClusterDelivery{
-				Spec: v1alpha1.ClusterDeliverySpec{
+			clusterDelivery = &v1alpha12.ClusterDelivery{
+				Spec: v1alpha12.ClusterDeliverySpec{
 					Selector: map[string]string{
 						"myLabel": "myLabelsValue",
 					},
@@ -222,13 +222,13 @@ var _ = Describe("MapFunctions", func() {
 		Context("client does not return errors", func() {
 			BeforeEach(func() {
 				// By including the scheme, the client will not error when handed our Objects
-				err := v1alpha1.AddToScheme(scheme)
+				err := v1alpha12.AddToScheme(scheme)
 				Expect(err).ToNot(HaveOccurred())
 			})
 			Context("no deliverables", func() {
 				BeforeEach(func() {
-					clusterDelivery = &v1alpha1.ClusterDelivery{
-						Spec: v1alpha1.ClusterDeliverySpec{
+					clusterDelivery = &v1alpha12.ClusterDelivery{
+						Spec: v1alpha12.ClusterDeliverySpec{
 							Selector: map[string]string{
 								"myLabel": "myLabelsValue",
 							},
@@ -240,9 +240,9 @@ var _ = Describe("MapFunctions", func() {
 				})
 			})
 			Context("deliverables", func() {
-				var deliverable *v1alpha1.Deliverable
+				var deliverable *v1alpha12.Deliverable
 				BeforeEach(func() {
-					deliverable = &v1alpha1.Deliverable{
+					deliverable = &v1alpha12.Deliverable{
 						ObjectMeta: metav1.ObjectMeta{
 							Name:      "first-deliverable",
 							Namespace: "first-namespace",
@@ -290,7 +290,7 @@ var _ = Describe("MapFunctions", func() {
 
 			Context("when function is passed an object that is not a supplyChain", func() {
 				BeforeEach(func() {
-					clusterDelivery = &v1alpha1.Workload{}
+					clusterDelivery = &v1alpha12.Workload{}
 				})
 				It("logs a helpful error", func() {
 					Expect(result).To(BeEmpty())
@@ -320,7 +320,7 @@ var _ = Describe("MapFunctions", func() {
 			fakeClientBuilder = fake.NewClientBuilder()
 			fakeLogger = &registrarfakes.FakeLogger{}
 
-			runTemplate = &v1alpha1.ClusterRunTemplate{
+			runTemplate = &v1alpha12.ClusterRunTemplate{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "match",
 					Namespace: "match",
@@ -358,7 +358,7 @@ var _ = Describe("MapFunctions", func() {
 		Context("client does not return errors", func() {
 			BeforeEach(func() {
 				// By including the scheme, the client will not error when handed our Objects
-				err := v1alpha1.AddToScheme(scheme)
+				err := v1alpha12.AddToScheme(scheme)
 				Expect(err).ToNot(HaveOccurred())
 			})
 			Context("but there exist no pipelines", func() {
@@ -367,9 +367,9 @@ var _ = Describe("MapFunctions", func() {
 				})
 			})
 			Context("and there are pipelines", func() {
-				var pipeline *v1alpha1.Pipeline
+				var pipeline *v1alpha12.Pipeline
 				BeforeEach(func() {
-					pipeline = &v1alpha1.Pipeline{
+					pipeline = &v1alpha12.Pipeline{
 						ObjectMeta: metav1.ObjectMeta{
 							Name:      "my-pipeline",
 							Namespace: "my-namespace",
@@ -381,7 +381,7 @@ var _ = Describe("MapFunctions", func() {
 				Context("a pipeline matches the runTemplate", func() {
 					Context("with a templateRef that specifies a namespace", func() {
 						BeforeEach(func() {
-							pipeline.Spec.RunTemplateRef = v1alpha1.TemplateReference{
+							pipeline.Spec.RunTemplateRef = v1alpha12.TemplateReference{
 								Name: "match",
 							}
 							clientObjects = []client.Object{pipeline}
@@ -403,7 +403,7 @@ var _ = Describe("MapFunctions", func() {
 
 					Context("with a templateRef that specifies a namespace", func() {
 						BeforeEach(func() {
-							pipeline.Spec.RunTemplateRef = v1alpha1.TemplateReference{
+							pipeline.Spec.RunTemplateRef = v1alpha12.TemplateReference{
 								Name: "match",
 							}
 							pipeline.Namespace = "match"
@@ -427,7 +427,7 @@ var _ = Describe("MapFunctions", func() {
 				Context("no pipeline matches the runTemplate", func() {
 					Context("because the name in the templateRef is different", func() {
 						BeforeEach(func() {
-							pipeline.Spec.RunTemplateRef = v1alpha1.TemplateReference{
+							pipeline.Spec.RunTemplateRef = v1alpha12.TemplateReference{
 								Name: "non-existent-name",
 							}
 							clientObjects = []client.Object{pipeline}
@@ -440,7 +440,7 @@ var _ = Describe("MapFunctions", func() {
 
 					Context("because the templateRef is the wrong Kind", func() {
 						BeforeEach(func() {
-							pipeline.Spec.RunTemplateRef = v1alpha1.TemplateReference{
+							pipeline.Spec.RunTemplateRef = v1alpha12.TemplateReference{
 								Name: "match",
 								Kind: "some-kind",
 							}
@@ -456,7 +456,7 @@ var _ = Describe("MapFunctions", func() {
 
 			Context("when function is passed an object that is not a supplyChain", func() {
 				BeforeEach(func() {
-					runTemplate = &v1alpha1.Workload{}
+					runTemplate = &v1alpha12.Workload{}
 				})
 				It("logs a helpful error", func() {
 					Expect(result).To(BeEmpty())

@@ -15,13 +15,12 @@
 package templates
 
 import (
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 )
 
 type clusterDeploymentTemplate struct {
-	template  *v1alpha1.ClusterDeploymentTemplate
+	template  *v1alpha12.ClusterDeploymentTemplate
 	evaluator evaluator
 }
 
@@ -29,7 +28,7 @@ func (t clusterDeploymentTemplate) GetKind() string {
 	return t.template.Kind
 }
 
-func NewClusterDeploymentTemplateModel(template *v1alpha1.ClusterDeploymentTemplate, eval evaluator) *clusterDeploymentTemplate {
+func NewClusterDeploymentTemplateModel(template *v1alpha12.ClusterDeploymentTemplate, eval evaluator) *clusterDeploymentTemplate {
 	return &clusterDeploymentTemplate{template: template, evaluator: eval}
 }
 
@@ -41,10 +40,10 @@ func (t clusterDeploymentTemplate) GetOutput(stampedObject *unstructured.Unstruc
 	return &Output{}, nil
 }
 
-func (t clusterDeploymentTemplate) GetResourceTemplate() v1alpha1.TemplateSpec {
+func (t clusterDeploymentTemplate) GetResourceTemplate() v1alpha12.TemplateSpec {
 	return t.template.Spec
 }
 
-func (t clusterDeploymentTemplate) GetDefaultParams() v1alpha1.DefaultParams {
+func (t clusterDeploymentTemplate) GetDefaultParams() v1alpha12.DefaultParams {
 	return t.template.Spec.Params
 }

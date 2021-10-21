@@ -17,12 +17,11 @@ package registrar
 import (
 	"context"
 	"fmt"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 )
 
 //counterfeiter:generate . Logger
@@ -38,13 +37,13 @@ type Mapper struct {
 func (mapper *Mapper) ClusterSupplyChainToWorkloadRequests(object client.Object) []reconcile.Request {
 	var err error
 
-	supplyChain, ok := object.(*v1alpha1.ClusterSupplyChain)
+	supplyChain, ok := object.(*v1alpha12.ClusterSupplyChain)
 	if !ok {
 		mapper.Logger.Error(nil, "cluster supply chain to workload requests: cast to ClusterSupplyChain failed")
 		return nil
 	}
 
-	list := &v1alpha1.WorkloadList{}
+	list := &v1alpha12.WorkloadList{}
 
 	err = mapper.Client.List(context.TODO(), list,
 		client.InNamespace(supplyChain.Namespace),
@@ -71,13 +70,13 @@ func (mapper *Mapper) ClusterSupplyChainToWorkloadRequests(object client.Object)
 func (mapper *Mapper) ClusterDeliveryToDeliverableRequests(object client.Object) []reconcile.Request {
 	var err error
 
-	delivery, ok := object.(*v1alpha1.ClusterDelivery)
+	delivery, ok := object.(*v1alpha12.ClusterDelivery)
 	if !ok {
 		mapper.Logger.Error(nil, "cluster delivery to deliverable requests: cast to ClusterDelivery failed")
 		return nil
 	}
 
-	list := &v1alpha1.DeliverableList{}
+	list := &v1alpha12.DeliverableList{}
 
 	err = mapper.Client.List(context.TODO(), list,
 		client.InNamespace(delivery.Namespace),
@@ -103,13 +102,13 @@ func (mapper *Mapper) ClusterDeliveryToDeliverableRequests(object client.Object)
 func (mapper *Mapper) RunTemplateToPipelineRequests(object client.Object) []reconcile.Request {
 	var err error
 
-	runTemplate, ok := object.(*v1alpha1.ClusterRunTemplate)
+	runTemplate, ok := object.(*v1alpha12.ClusterRunTemplate)
 	if !ok {
 		mapper.Logger.Error(nil, "run template to pipeline requests: cast to run template failed")
 		return nil
 	}
 
-	list := &v1alpha1.PipelineList{}
+	list := &v1alpha12.PipelineList{}
 
 	err = mapper.Client.List(context.TODO(), list)
 	if err != nil {
@@ -133,7 +132,7 @@ func (mapper *Mapper) RunTemplateToPipelineRequests(object client.Object) []reco
 	return requests
 }
 
-func runTemplateRefMatch(ref v1alpha1.TemplateReference, runTemplate *v1alpha1.ClusterRunTemplate) bool {
+func runTemplateRefMatch(ref v1alpha12.TemplateReference, runTemplate *v1alpha12.ClusterRunTemplate) bool {
 	if ref.Name != runTemplate.Name {
 		return false
 	}

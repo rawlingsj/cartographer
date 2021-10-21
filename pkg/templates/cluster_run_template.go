@@ -17,12 +17,12 @@ package templates
 import (
 	"encoding/json"
 	"fmt"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"time"
 
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/eval"
 )
 
@@ -30,12 +30,12 @@ type Outputs map[string]apiextensionsv1.JSON
 
 type ClusterRunTemplate interface {
 	GetName() string
-	GetResourceTemplate() v1alpha1.TemplateSpec
+	GetResourceTemplate() v1alpha12.TemplateSpec
 	GetOutput(stampedObjects []*unstructured.Unstructured) (Outputs, error)
 }
 
 type runTemplate struct {
-	template *v1alpha1.ClusterRunTemplate
+	template *v1alpha12.ClusterRunTemplate
 }
 
 func (t runTemplate) GetOutput(stampedObjects []*unstructured.Unstructured) (Outputs, error) {
@@ -130,7 +130,7 @@ func (t runTemplate) getOutputsOfSingleObject(evaluator eval.Evaluator, stampedO
 	return objectErr, provisionalOutputs
 }
 
-func NewRunTemplateModel(template *v1alpha1.ClusterRunTemplate) ClusterRunTemplate {
+func NewRunTemplateModel(template *v1alpha12.ClusterRunTemplate) ClusterRunTemplate {
 	return &runTemplate{template: template}
 }
 
@@ -138,8 +138,8 @@ func (t runTemplate) GetName() string {
 	return t.template.Name
 }
 
-func (t runTemplate) GetResourceTemplate() v1alpha1.TemplateSpec {
-	return v1alpha1.TemplateSpec{
+func (t runTemplate) GetResourceTemplate() v1alpha12.TemplateSpec {
+	return v1alpha12.TemplateSpec{
 		Template: &t.template.Spec.Template,
 	}
 }

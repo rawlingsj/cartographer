@@ -17,6 +17,7 @@ package delivery
 import (
 	"context"
 	"fmt"
+	"github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"strings"
 	"time"
 
@@ -24,7 +25,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/conditions"
 	"github.com/vmware-tanzu/cartographer/pkg/repository"
 )

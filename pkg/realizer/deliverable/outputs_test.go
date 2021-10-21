@@ -17,8 +17,8 @@ package deliverable_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	realizer "github.com/vmware-tanzu/cartographer/pkg/realizer/deliverable"
 	"github.com/vmware-tanzu/cartographer/pkg/templates"
 )
@@ -40,8 +40,8 @@ var _ = Describe("Outputs", func() {
 
 			Context("And the sources have a match with the outputs", func() {
 				It("Adds sources to inputs", func() {
-					resource := &v1alpha1.ClusterDeliveryResource{
-						Sources: []v1alpha1.ResourceReference{
+					resource := &v1alpha12.ClusterDeliveryResource{
+						Sources: []v1alpha12.ResourceReference{
 							{
 								Name:     "source-ref",
 								Resource: "source-output",
@@ -58,8 +58,8 @@ var _ = Describe("Outputs", func() {
 
 			Context("And the sources do not have a match with the outputs", func() {
 				It("Does not add sources to inputs", func() {
-					resource := &v1alpha1.ClusterDeliveryResource{
-						Sources: []v1alpha1.ResourceReference{
+					resource := &v1alpha12.ClusterDeliveryResource{
+						Sources: []v1alpha12.ResourceReference{
 							{
 								Name:     "source-ref",
 								Resource: "source-output-does-not-exist",
@@ -84,8 +84,8 @@ var _ = Describe("Outputs", func() {
 
 			Context("And the configs have a match with the outputs", func() {
 				It("Adds configs to inputs", func() {
-					resource := &v1alpha1.ClusterDeliveryResource{
-						Configs: []v1alpha1.ResourceReference{
+					resource := &v1alpha12.ClusterDeliveryResource{
+						Configs: []v1alpha12.ResourceReference{
 							{
 								Name:     "config-ref",
 								Resource: "config-output",
@@ -101,8 +101,8 @@ var _ = Describe("Outputs", func() {
 
 			Context("And the configs do not have a match with the outputs", func() {
 				It("Does not add configs to inputs", func() {
-					resource := &v1alpha1.ClusterDeliveryResource{
-						Configs: []v1alpha1.ResourceReference{
+					resource := &v1alpha12.ClusterDeliveryResource{
+						Configs: []v1alpha12.ResourceReference{
 							{
 								Name:     "config-ref",
 								Resource: "config-output-does-not-exist",

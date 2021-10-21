@@ -18,6 +18,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"io"
 	"time"
 
@@ -31,8 +32,6 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 )
 
 type LogLine struct {
@@ -60,14 +59,14 @@ var _ = Describe("DeliverableReconciler", func() {
 		return templateBytes
 	}
 
-	var newClusterDelivery = func(name string, selector map[string]string) *v1alpha1.ClusterDelivery {
-		return &v1alpha1.ClusterDelivery{
+	var newClusterDelivery = func(name string, selector map[string]string) *v1alpha12.ClusterDelivery {
+		return &v1alpha12.ClusterDelivery{
 			TypeMeta: v1.TypeMeta{},
 			ObjectMeta: v1.ObjectMeta{
 				Name: name,
 			},
-			Spec: v1alpha1.ClusterDeliverySpec{
-				Resources: []v1alpha1.ClusterDeliveryResource{},
+			Spec: v1alpha12.ClusterDeliverySpec{
+				Resources: []v1alpha12.ClusterDeliveryResource{},
 				Selector:  selector,
 			},
 		}
@@ -76,18 +75,18 @@ var _ = Describe("DeliverableReconciler", func() {
 	var reconcileAgain = func() {
 		time.Sleep(1 * time.Second) //metav1.Time unmarshals with 1 second accuracy so this sleep avoids a race condition
 
-		deliverable := &v1alpha1.Deliverable{}
+		deliverable := &v1alpha12.Deliverable{}
 		err := c.Get(context.Background(), client.ObjectKey{Name: "deliverable-bob", Namespace: testNS}, deliverable)
 		Expect(err).NotTo(HaveOccurred())
 
-		deliverable.Spec.Params = []v1alpha1.Param{{Name: "foo", Value: apiextensionsv1.JSON{
+		deliverable.Spec.Params = []v1alpha12.Param{{Name: "foo", Value: apiextensionsv1.JSON{
 			Raw: []byte(`"definitelybar"`),
 		}}}
 		err = c.Update(context.Background(), deliverable)
 		Expect(err).NotTo(HaveOccurred())
 
 		Eventually(func() bool {
-			deliverable := &v1alpha1.Deliverable{}
+			deliverable := &v1alpha12.Deliverable{}
 			err := c.Get(context.Background(), client.ObjectKey{Name: "deliverable-bob", Namespace: testNS}, deliverable)
 			Expect(err).NotTo(HaveOccurred())
 			return deliverable.Status.ObservedGeneration == deliverable.Generation
@@ -111,7 +110,7 @@ var _ = Describe("DeliverableReconciler", func() {
 
 	Context("Has the source template and deliverable installed", func() {
 		BeforeEach(func() {
-			deliverable := &v1alpha1.Deliverable{
+			deliverable := &v1alpha12.Deliverable{
 				TypeMeta: v1.TypeMeta{},
 				ObjectMeta: v1.ObjectMeta{
 					Name:      "deliverable-bob",
@@ -120,7 +119,7 @@ var _ = Describe("DeliverableReconciler", func() {
 						"name": "webapp",
 					},
 				},
-				Spec: v1alpha1.DeliverableSpec{},
+				Spec: v1alpha12.DeliverableSpec{},
 			}
 
 			cleanups = append(cleanups, deliverable)
@@ -132,7 +131,7 @@ var _ = Describe("DeliverableReconciler", func() {
 			var lastConditions []v1.Condition
 
 			Eventually(func() bool {
-				deliverable := &v1alpha1.Deliverable{}
+				deliverable := &v1alpha12.Deliverable{}
 				err := c.Get(context.Background(), client.ObjectKey{Name: "deliverable-bob", Namespace: testNS}, deliverable)
 				Expect(err).NotTo(HaveOccurred())
 				lastConditions = deliverable.Status.Conditions
@@ -141,7 +140,7 @@ var _ = Describe("DeliverableReconciler", func() {
 
 			reconcileAgain()
 
-			deliverable := &v1alpha1.Deliverable{}
+			deliverable := &v1alpha12.Deliverable{}
 			err := c.Get(ctx, client.ObjectKey{Name: "deliverable-bob", Namespace: testNS}, deliverable)
 			Expect(err).NotTo(HaveOccurred())
 
@@ -150,13 +149,13 @@ var _ = Describe("DeliverableReconciler", func() {
 
 		Context("when reconciliation will end in an unknown status", func() {
 			BeforeEach(func() {
-				template := &v1alpha1.ClusterSourceTemplate{
+				template := &v1alpha12.ClusterSourceTemplate{
 					TypeMeta: v1.TypeMeta{},
 					ObjectMeta: v1.ObjectMeta{
 						Name: "proper-template-bob",
 					},
-					Spec: v1alpha1.SourceTemplateSpec{
-						TemplateSpec: v1alpha1.TemplateSpec{
+					Spec: v1alpha12.SourceTemplateSpec{
+						TemplateSpec: v1alpha12.TemplateSpec{
 							Template: &runtime.RawExtension{Raw: templateBytes()},
 						},
 						URLPath: "nonexistant.path",
@@ -168,10 +167,10 @@ var _ = Describe("DeliverableReconciler", func() {
 				Expect(err).NotTo(HaveOccurred())
 
 				delivery := newClusterDelivery("delivery-bob", map[string]string{"name": "webapp"})
-				delivery.Spec.Resources = []v1alpha1.ClusterDeliveryResource{
+				delivery.Spec.Resources = []v1alpha12.ClusterDeliveryResource{
 					{
 						Name: "fred-resource",
-						TemplateRef: v1alpha1.DeliveryClusterTemplateReference{
+						TemplateRef: v1alpha12.DeliveryClusterTemplateReference{
 							Kind: "ClusterSourceTemplate",
 							Name: "proper-template-bob",
 						},
@@ -185,7 +184,7 @@ var _ = Describe("DeliverableReconciler", func() {
 
 			It("does not error if the reconciliation ends in an unknown status", func() {
 				Eventually(func() []v1.Condition {
-					obj := &v1alpha1.Deliverable{}
+					obj := &v1alpha12.Deliverable{}
 					err := c.Get(ctx, client.ObjectKey{Name: "deliverable-bob", Namespace: testNS}, obj)
 					Expect(err).NotTo(HaveOccurred())
 
@@ -209,7 +208,7 @@ var _ = Describe("DeliverableReconciler", func() {
 		It("shortcuts backoff when a delivery is provided", func() {
 			By("expecting a delivery")
 			Eventually(func() []v1.Condition {
-				obj := &v1alpha1.Deliverable{}
+				obj := &v1alpha12.Deliverable{}
 				err := c.Get(ctx, client.ObjectKey{Name: "deliverable-bob", Namespace: testNS}, obj)
 				Expect(err).NotTo(HaveOccurred())
 
@@ -253,7 +252,7 @@ var _ = Describe("DeliverableReconciler", func() {
 			err := c.Create(ctx, delivery, &client.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 
-			obj := &v1alpha1.ClusterDelivery{}
+			obj := &v1alpha12.ClusterDelivery{}
 			Eventually(func() ([]v1.Condition, error) {
 				err = c.Get(ctx, client.ObjectKey{Name: "delivery-bob"}, obj)
 				return obj.Status.Conditions, err

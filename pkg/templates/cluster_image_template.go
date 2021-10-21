@@ -18,14 +18,13 @@ package templates
 
 import (
 	"fmt"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 )
 
 type clusterImageTemplate struct {
-	template  *v1alpha1.ClusterImageTemplate
+	template  *v1alpha12.ClusterImageTemplate
 	evaluator evaluator
 }
 
@@ -33,7 +32,7 @@ func (t clusterImageTemplate) GetKind() string {
 	return t.template.Kind
 }
 
-func NewClusterImageTemplateModel(template *v1alpha1.ClusterImageTemplate, eval evaluator) *clusterImageTemplate {
+func NewClusterImageTemplateModel(template *v1alpha12.ClusterImageTemplate, eval evaluator) *clusterImageTemplate {
 	return &clusterImageTemplate{template: template, evaluator: eval}
 }
 
@@ -55,10 +54,10 @@ func (t clusterImageTemplate) GetOutput(stampedObject *unstructured.Unstructured
 	}, nil
 }
 
-func (t clusterImageTemplate) GetResourceTemplate() v1alpha1.TemplateSpec {
+func (t clusterImageTemplate) GetResourceTemplate() v1alpha12.TemplateSpec {
 	return t.template.Spec.TemplateSpec
 }
 
-func (t clusterImageTemplate) GetDefaultParams() v1alpha1.DefaultParams {
+func (t clusterImageTemplate) GetDefaultParams() v1alpha12.DefaultParams {
 	return t.template.Spec.Params
 }

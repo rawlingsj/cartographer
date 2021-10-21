@@ -19,6 +19,7 @@ package registrar
 import (
 	"context"
 	"fmt"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -30,7 +31,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/conditions"
 	"github.com/vmware-tanzu/cartographer/pkg/controller/deliverable"
 	"github.com/vmware-tanzu/cartographer/pkg/controller/delivery"
@@ -50,7 +50,7 @@ func (t Timer) Now() metav1.Time {
 }
 
 func AddToScheme(scheme *runtime.Scheme) error {
-	if err := v1alpha1.AddToScheme(scheme); err != nil {
+	if err := v1alpha12.AddToScheme(scheme); err != nil {
 		return fmt.Errorf("cartographer v1alpha1 add to scheme: %w", err)
 	}
 
@@ -92,7 +92,7 @@ func registerWorkloadController(mgr manager.Manager) error {
 	}
 
 	if err := ctrl.Watch(
-		&source.Kind{Type: &v1alpha1.Workload{}},
+		&source.Kind{Type: &v1alpha12.Workload{}},
 		&handler.EnqueueRequestForObject{},
 	); err != nil {
 		return fmt.Errorf("watch: %w", err)
@@ -104,7 +104,7 @@ func registerWorkloadController(mgr manager.Manager) error {
 	}
 
 	if err := ctrl.Watch(
-		&source.Kind{Type: &v1alpha1.ClusterSupplyChain{}},
+		&source.Kind{Type: &v1alpha12.ClusterSupplyChain{}},
 		handler.EnqueueRequestsFromMapFunc(mapper.ClusterSupplyChainToWorkloadRequests),
 	); err != nil {
 		return fmt.Errorf("watch: %w", err)
@@ -124,7 +124,7 @@ func registerSupplyChainController(mgr manager.Manager) error {
 	}
 
 	if err := ctrl.Watch(
-		&source.Kind{Type: &v1alpha1.ClusterSupplyChain{}},
+		&source.Kind{Type: &v1alpha12.ClusterSupplyChain{}},
 		&handler.EnqueueRequestForObject{},
 	); err != nil {
 		return fmt.Errorf("watch: %w", err)
@@ -144,7 +144,7 @@ func registerDeliveryController(mgr manager.Manager) error {
 	}
 
 	if err := ctrl.Watch(
-		&source.Kind{Type: &v1alpha1.ClusterDelivery{}},
+		&source.Kind{Type: &v1alpha12.ClusterDelivery{}},
 		&handler.EnqueueRequestForObject{},
 	); err != nil {
 		return fmt.Errorf("watch: %w", err)
@@ -164,7 +164,7 @@ func registerDeliverableController(mgr manager.Manager) error {
 	}
 
 	if err := ctrl.Watch(
-		&source.Kind{Type: &v1alpha1.Deliverable{}},
+		&source.Kind{Type: &v1alpha12.Deliverable{}},
 		&handler.EnqueueRequestForObject{},
 	); err != nil {
 		return fmt.Errorf("watch: %w", err)
@@ -176,7 +176,7 @@ func registerDeliverableController(mgr manager.Manager) error {
 	}
 
 	if err := ctrl.Watch(
-		&source.Kind{Type: &v1alpha1.ClusterDelivery{}},
+		&source.Kind{Type: &v1alpha12.ClusterDelivery{}},
 		handler.EnqueueRequestsFromMapFunc(mapper.ClusterDeliveryToDeliverableRequests),
 	); err != nil {
 		return fmt.Errorf("watch: %w", err)
@@ -201,7 +201,7 @@ func registerPipelineServiceController(mgr manager.Manager) error {
 	})
 
 	if err := ctrl.Watch(
-		&source.Kind{Type: &v1alpha1.Pipeline{}},
+		&source.Kind{Type: &v1alpha12.Pipeline{}},
 		&handler.EnqueueRequestForObject{},
 	); err != nil {
 		return fmt.Errorf("watch [pipeline-service]: %w", err)
@@ -213,7 +213,7 @@ func registerPipelineServiceController(mgr manager.Manager) error {
 	}
 
 	if err := ctrl.Watch(
-		&source.Kind{Type: &v1alpha1.ClusterRunTemplate{}},
+		&source.Kind{Type: &v1alpha12.ClusterRunTemplate{}},
 		handler.EnqueueRequestsFromMapFunc(mapper.RunTemplateToPipelineRequests),
 	); err != nil {
 		return fmt.Errorf("watch: %w", err)
@@ -233,7 +233,7 @@ func IndexResources(mgr manager.Manager, ctx context.Context) error {
 }
 
 func indexSupplyChains(ctx context.Context, fieldIndexer client.FieldIndexer) error {
-	err := fieldIndexer.IndexField(ctx, &v1alpha1.ClusterSupplyChain{}, "spec.selector", v1alpha1.GetSelectorsFromObject)
+	err := fieldIndexer.IndexField(ctx, &v1alpha12.ClusterSupplyChain{}, "spec.selector", v1alpha12.GetSelectorsFromObject)
 	if err != nil {
 		return fmt.Errorf("index field supply-chain.selector: %w", err)
 	}

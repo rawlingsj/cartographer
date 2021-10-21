@@ -18,6 +18,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"io"
 	"time"
 
@@ -31,8 +32,6 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 )
 
 type LogLine struct {
@@ -60,14 +59,14 @@ var _ = Describe("WorkloadReconciler", func() {
 		return templateBytes
 	}
 
-	var newClusterSupplyChain = func(name string, selector map[string]string) *v1alpha1.ClusterSupplyChain {
-		return &v1alpha1.ClusterSupplyChain{
+	var newClusterSupplyChain = func(name string, selector map[string]string) *v1alpha12.ClusterSupplyChain {
+		return &v1alpha12.ClusterSupplyChain{
 			TypeMeta: v1.TypeMeta{},
 			ObjectMeta: v1.ObjectMeta{
 				Name: name,
 			},
-			Spec: v1alpha1.SupplyChainSpec{
-				Components: []v1alpha1.SupplyChainComponent{},
+			Spec: v1alpha12.SupplyChainSpec{
+				Components: []v1alpha12.SupplyChainComponent{},
 				Selector:   selector,
 			},
 		}
@@ -76,18 +75,18 @@ var _ = Describe("WorkloadReconciler", func() {
 	var reconcileAgain = func() {
 		time.Sleep(1 * time.Second) //metav1.Time unmarshals with 1 second accuracy so this sleep avoids a race condition
 
-		workload := &v1alpha1.Workload{}
+		workload := &v1alpha12.Workload{}
 		err := c.Get(context.Background(), client.ObjectKey{Name: "workload-bob", Namespace: testNS}, workload)
 		Expect(err).NotTo(HaveOccurred())
 
-		workload.Spec.Params = []v1alpha1.Param{{Name: "foo", Value: apiextensionsv1.JSON{
+		workload.Spec.Params = []v1alpha12.Param{{Name: "foo", Value: apiextensionsv1.JSON{
 			Raw: []byte(`"definitelybar"`),
 		}}}
 		err = c.Update(context.Background(), workload)
 		Expect(err).NotTo(HaveOccurred())
 
 		Eventually(func() bool {
-			workload := &v1alpha1.Workload{}
+			workload := &v1alpha12.Workload{}
 			err := c.Get(context.Background(), client.ObjectKey{Name: "workload-bob", Namespace: testNS}, workload)
 			Expect(err).NotTo(HaveOccurred())
 			return workload.Status.ObservedGeneration == workload.Generation
@@ -111,7 +110,7 @@ var _ = Describe("WorkloadReconciler", func() {
 
 	Context("Has the source template and workload installed", func() {
 		BeforeEach(func() {
-			workload := &v1alpha1.Workload{
+			workload := &v1alpha12.Workload{
 				TypeMeta: v1.TypeMeta{},
 				ObjectMeta: v1.ObjectMeta{
 					Name:      "workload-bob",
@@ -120,7 +119,7 @@ var _ = Describe("WorkloadReconciler", func() {
 						"name": "webapp",
 					},
 				},
-				Spec: v1alpha1.WorkloadSpec{},
+				Spec: v1alpha12.WorkloadSpec{},
 			}
 
 			cleanups = append(cleanups, workload)
@@ -132,7 +131,7 @@ var _ = Describe("WorkloadReconciler", func() {
 			var lastConditions []v1.Condition
 
 			Eventually(func() bool {
-				workload := &v1alpha1.Workload{}
+				workload := &v1alpha12.Workload{}
 				err := c.Get(context.Background(), client.ObjectKey{Name: "workload-bob", Namespace: testNS}, workload)
 				Expect(err).NotTo(HaveOccurred())
 				lastConditions = workload.Status.Conditions
@@ -141,7 +140,7 @@ var _ = Describe("WorkloadReconciler", func() {
 
 			reconcileAgain()
 
-			workload := &v1alpha1.Workload{}
+			workload := &v1alpha12.Workload{}
 			err := c.Get(ctx, client.ObjectKey{Name: "workload-bob", Namespace: testNS}, workload)
 			Expect(err).NotTo(HaveOccurred())
 
@@ -150,13 +149,13 @@ var _ = Describe("WorkloadReconciler", func() {
 
 		Context("when reconciliation will end in an unknown status", func() {
 			BeforeEach(func() {
-				template := &v1alpha1.ClusterSourceTemplate{
+				template := &v1alpha12.ClusterSourceTemplate{
 					TypeMeta: v1.TypeMeta{},
 					ObjectMeta: v1.ObjectMeta{
 						Name: "proper-template-bob",
 					},
-					Spec: v1alpha1.SourceTemplateSpec{
-						TemplateSpec: v1alpha1.TemplateSpec{
+					Spec: v1alpha12.SourceTemplateSpec{
+						TemplateSpec: v1alpha12.TemplateSpec{
 							Template: &runtime.RawExtension{Raw: templateBytes()},
 						},
 						URLPath: "nonexistant.path",
@@ -168,10 +167,10 @@ var _ = Describe("WorkloadReconciler", func() {
 				Expect(err).NotTo(HaveOccurred())
 
 				supplyChain := newClusterSupplyChain("supplychain-bob", map[string]string{"name": "webapp"})
-				supplyChain.Spec.Components = []v1alpha1.SupplyChainComponent{
+				supplyChain.Spec.Components = []v1alpha12.SupplyChainComponent{
 					{
 						Name: "fred-component",
-						TemplateRef: v1alpha1.ClusterTemplateReference{
+						TemplateRef: v1alpha12.ClusterTemplateReference{
 							Kind: "ClusterSourceTemplate",
 							Name: "proper-template-bob",
 						},
@@ -185,7 +184,7 @@ var _ = Describe("WorkloadReconciler", func() {
 
 			It("does not error if the reconciliation ends in an unknown status", func() {
 				Eventually(func() []v1.Condition {
-					obj := &v1alpha1.Workload{}
+					obj := &v1alpha12.Workload{}
 					err := c.Get(ctx, client.ObjectKey{Name: "workload-bob", Namespace: testNS}, obj)
 					Expect(err).NotTo(HaveOccurred())
 
@@ -209,7 +208,7 @@ var _ = Describe("WorkloadReconciler", func() {
 		It("shortcuts backoff when a supply chain is provided", func() {
 			By("expecting a supply chain")
 			Eventually(func() []v1.Condition {
-				obj := &v1alpha1.Workload{}
+				obj := &v1alpha12.Workload{}
 				err := c.Get(ctx, client.ObjectKey{Name: "workload-bob", Namespace: testNS}, obj)
 				Expect(err).NotTo(HaveOccurred())
 
@@ -253,7 +252,7 @@ var _ = Describe("WorkloadReconciler", func() {
 			err := c.Create(ctx, supplyChain, &client.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 
-			obj := &v1alpha1.ClusterSupplyChain{}
+			obj := &v1alpha12.ClusterSupplyChain{}
 			Eventually(func() ([]v1.Condition, error) {
 				err = c.Get(ctx, client.ObjectKey{Name: "supplychain-bob"}, obj)
 				return obj.Status.Conditions, err

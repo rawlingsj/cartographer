@@ -16,6 +16,7 @@ package templates_test
 
 import (
 	"context"
+	"github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"os"
 
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
@@ -30,7 +31,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/pointer"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/templates"
 )
 

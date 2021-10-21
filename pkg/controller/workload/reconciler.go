@@ -17,6 +17,7 @@ package workload
 import (
 	"context"
 	"fmt"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -24,7 +25,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/conditions"
 	realizer "github.com/vmware-tanzu/cartographer/pkg/realizer/workload"
 	"github.com/vmware-tanzu/cartographer/pkg/repository"
@@ -65,7 +65,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, fmt.Errorf("get workload: %w", err)
 	}
 
-	r.conditionManager = r.conditionManagerBuilder(v1alpha1.WorkloadReady, workload.Status.Conditions)
+	r.conditionManager = r.conditionManagerBuilder(v1alpha12.WorkloadReady, workload.Status.Conditions)
 
 	supplyChain, err := r.getSupplyChainsForWorkload(workload)
 	if err != nil {
@@ -111,7 +111,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	return r.completeReconciliation(reconcileCtx, workload, nil)
 }
 
-func (r *Reconciler) completeReconciliation(ctx context.Context, workload *v1alpha1.Workload, err error) (ctrl.Result, error) {
+func (r *Reconciler) completeReconciliation(ctx context.Context, workload *v1alpha12.Workload, err error) (ctrl.Result, error) {
 	logger := logr.FromContext(ctx)
 
 	var changed bool
@@ -143,7 +143,7 @@ func (r *Reconciler) completeReconciliation(ctx context.Context, workload *v1alp
 	return ctrl.Result{RequeueAfter: reconcileInterval}, nil
 }
 
-func (r *Reconciler) checkSupplyChainReadiness(supplyChain *v1alpha1.ClusterSupplyChain) error {
+func (r *Reconciler) checkSupplyChainReadiness(supplyChain *v1alpha12.ClusterSupplyChain) error {
 	supplyChainReadyCondition := getSupplyChainReadyCondition(supplyChain)
 	if supplyChainReadyCondition.Status == "True" {
 		return nil
@@ -151,7 +151,7 @@ func (r *Reconciler) checkSupplyChainReadiness(supplyChain *v1alpha1.ClusterSupp
 	return fmt.Errorf("supply-chain is not in ready condition")
 }
 
-func getSupplyChainReadyCondition(supplyChain *v1alpha1.ClusterSupplyChain) metav1.Condition {
+func getSupplyChainReadyCondition(supplyChain *v1alpha12.ClusterSupplyChain) metav1.Condition {
 	for _, condition := range supplyChain.Status.Conditions {
 		if condition.Type == "Ready" {
 			return condition
@@ -160,7 +160,7 @@ func getSupplyChainReadyCondition(supplyChain *v1alpha1.ClusterSupplyChain) meta
 	return metav1.Condition{}
 }
 
-func (r *Reconciler) getSupplyChainsForWorkload(workload *v1alpha1.Workload) (*v1alpha1.ClusterSupplyChain, error) {
+func (r *Reconciler) getSupplyChainsForWorkload(workload *v1alpha12.Workload) (*v1alpha12.ClusterSupplyChain, error) {
 	if len(workload.Labels) == 0 {
 		r.conditionManager.AddPositive(WorkloadMissingLabelsCondition())
 		return nil, fmt.Errorf("workload is missing required labels")

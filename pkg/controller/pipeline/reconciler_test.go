@@ -17,6 +17,7 @@ package pipeline_test
 import (
 	"context"
 	"errors"
+	"github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 
 	"github.com/go-logr/logr"
 	. "github.com/onsi/ginkgo"
@@ -33,7 +34,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/controller/pipeline"
 	pipelinefakes2 "github.com/vmware-tanzu/cartographer/pkg/controller/pipeline/pipelinefakes"
 	realizer "github.com/vmware-tanzu/cartographer/pkg/realizer/pipeline"

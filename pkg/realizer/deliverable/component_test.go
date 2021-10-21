@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"reflect"
 
 	. "github.com/onsi/ginkgo"
@@ -26,7 +27,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/eval"
 	realizer "github.com/vmware-tanzu/cartographer/pkg/realizer/deliverable"
 	"github.com/vmware-tanzu/cartographer/pkg/repository/repositoryfakes"
@@ -36,18 +36,18 @@ import (
 var _ = Describe("Resource", func() {
 
 	var (
-		resource     v1alpha1.ClusterDeliveryResource
-		deliverable  v1alpha1.Deliverable
-		outputs      realizer.Outputs
+		resource    v1alpha12.ClusterDeliveryResource
+		deliverable v1alpha12.Deliverable
+		outputs     realizer.Outputs
 		deliveryName string
 		fakeRepo     repositoryfakes.FakeRepository
 		r            realizer.ResourceRealizer
 	)
 
 	BeforeEach(func() {
-		resource = v1alpha1.ClusterDeliveryResource{
+		resource = v1alpha12.ClusterDeliveryResource{
 			Name: "resource-1",
-			TemplateRef: v1alpha1.DeliveryClusterTemplateReference{
+			TemplateRef: v1alpha12.DeliveryClusterTemplateReference{
 				Kind: "ClusterSourceTemplate",
 				Name: "source-template-1",
 			},
@@ -58,14 +58,14 @@ var _ = Describe("Resource", func() {
 		outputs = realizer.NewOutputs()
 
 		fakeRepo = repositoryfakes.FakeRepository{}
-		deliverable = v1alpha1.Deliverable{}
+		deliverable = v1alpha12.Deliverable{}
 		r = realizer.NewResourceRealizer(&deliverable, &fakeRepo)
 	})
 
 	Describe("Do", func() {
 		When("passed a deliverable with outputs", func() {
 			BeforeEach(func() {
-				resource.Sources = []v1alpha1.ResourceReference{
+				resource.Sources = []v1alpha12.ResourceReference{
 					{
 						Name:     "source-provider",
 						Resource: "previous-resource",
@@ -95,7 +95,7 @@ var _ = Describe("Resource", func() {
 				dbytes, err := json.Marshal(configMap)
 				Expect(err).ToNot(HaveOccurred())
 
-				templateAPI := &v1alpha1.ClusterSourceTemplate{
+				templateAPI := &v1alpha12.ClusterSourceTemplate{
 					TypeMeta: metav1.TypeMeta{
 						Kind:       "ClusterSourceTemplate",
 						APIVersion: "carto.run/v1alpha1",
@@ -104,8 +104,8 @@ var _ = Describe("Resource", func() {
 						Name:      "source-template-1",
 						Namespace: "some-namespace",
 					},
-					Spec: v1alpha1.SourceTemplateSpec{
-						TemplateSpec: v1alpha1.TemplateSpec{
+					Spec: v1alpha12.SourceTemplateSpec{
+						TemplateSpec: v1alpha12.TemplateSpec{
 							Template: &runtime.RawExtension{Raw: dbytes},
 						},
 						URLPath:      "data.player_current_lives",
@@ -171,7 +171,7 @@ var _ = Describe("Resource", func() {
 
 		When("unable to Stamp a new template", func() {
 			BeforeEach(func() {
-				templateAPI := &v1alpha1.ClusterSourceTemplate{
+				templateAPI := &v1alpha12.ClusterSourceTemplate{
 					TypeMeta: metav1.TypeMeta{
 						Kind:       "ClusterSourceTemplate",
 						APIVersion: "carto.run/v1alpha1",
@@ -180,8 +180,8 @@ var _ = Describe("Resource", func() {
 						Name:      "source-template-1",
 						Namespace: "some-namespace",
 					},
-					Spec: v1alpha1.SourceTemplateSpec{
-						TemplateSpec: v1alpha1.TemplateSpec{
+					Spec: v1alpha12.SourceTemplateSpec{
+						TemplateSpec: v1alpha12.TemplateSpec{
 							Template: &runtime.RawExtension{},
 						},
 					},
@@ -219,7 +219,7 @@ var _ = Describe("Resource", func() {
 				dbytes, err := json.Marshal(configMap)
 				Expect(err).ToNot(HaveOccurred())
 
-				templateAPI := &v1alpha1.ClusterSourceTemplate{
+				templateAPI := &v1alpha12.ClusterSourceTemplate{
 					TypeMeta: metav1.TypeMeta{
 						Kind:       "ClusterSourceTemplate",
 						APIVersion: "carto.run/v1alpha1",
@@ -228,8 +228,8 @@ var _ = Describe("Resource", func() {
 						Name:      "image-template-1",
 						Namespace: "some-namespace",
 					},
-					Spec: v1alpha1.SourceTemplateSpec{
-						TemplateSpec: v1alpha1.TemplateSpec{
+					Spec: v1alpha12.SourceTemplateSpec{
+						TemplateSpec: v1alpha12.TemplateSpec{
 							Template: &runtime.RawExtension{Raw: dbytes},
 						},
 						URLPath: "data.does-not-exist",
@@ -251,7 +251,7 @@ var _ = Describe("Resource", func() {
 
 		When("unable to EnsureObjectExistsOnCluster the stamped object", func() {
 			BeforeEach(func() {
-				resource.Sources = []v1alpha1.ResourceReference{
+				resource.Sources = []v1alpha12.ResourceReference{
 					{
 						Name:     "source-provider",
 						Resource: "previous-resource",
@@ -281,7 +281,7 @@ var _ = Describe("Resource", func() {
 				dbytes, err := json.Marshal(configMap)
 				Expect(err).ToNot(HaveOccurred())
 
-				templateAPI := &v1alpha1.ClusterSourceTemplate{
+				templateAPI := &v1alpha12.ClusterSourceTemplate{
 					TypeMeta: metav1.TypeMeta{
 						Kind:       "ClusterSourceTemplate",
 						APIVersion: "carto.run/v1alpha1",
@@ -290,8 +290,8 @@ var _ = Describe("Resource", func() {
 						Name:      "source-template-1",
 						Namespace: "some-namespace",
 					},
-					Spec: v1alpha1.SourceTemplateSpec{
-						TemplateSpec: v1alpha1.TemplateSpec{
+					Spec: v1alpha12.SourceTemplateSpec{
+						TemplateSpec: v1alpha12.TemplateSpec{
 							Template: &runtime.RawExtension{Raw: dbytes},
 						},
 						URLPath: "data.some_other_info",

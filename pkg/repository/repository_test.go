@@ -17,6 +17,7 @@ package repository_test
 import (
 	"context"
 	"errors"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"reflect"
 
 	. "github.com/onsi/ginkgo"
@@ -31,7 +32,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/repository"
 	"github.com/vmware-tanzu/cartographer/pkg/repository/repositoryfakes"
 	"github.com/vmware-tanzu/cartographer/pkg/utils"
@@ -399,7 +399,7 @@ spec:
 			})
 
 			It("attempts to list the object from the apiServer", func() {
-				_, err := repo.GetSupplyChainsForWorkload(&v1alpha1.Workload{})
+				_, err := repo.GetSupplyChainsForWorkload(&v1alpha12.Workload{})
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("list supply chains:"))
 			})
@@ -420,7 +420,7 @@ spec:
 		Context("GetClusterTemplate", func() {
 			Context("when the template reference kind is not in our gvk", func() {
 				It("returns a helpful error", func() {
-					reference := v1alpha1.ClusterTemplateReference{
+					reference := v1alpha12.ClusterTemplateReference{
 						Kind: "some-unsupported-kind",
 					}
 					_, err := repo.GetClusterTemplate(reference)
@@ -434,7 +434,7 @@ spec:
 					cl.GetReturns(errors.New("some bad get error"))
 				})
 				It("returns a helpful error", func() {
-					reference := v1alpha1.ClusterTemplateReference{
+					reference := v1alpha12.ClusterTemplateReference{
 						Kind: "ClusterImageTemplate",
 						Name: "image-template",
 					}
@@ -448,7 +448,7 @@ spec:
 		Context("GetDeliveryClusterTemplate", func() {
 			Context("when the template reference kind is not in our gvk", func() {
 				It("returns a helpful error", func() {
-					reference := v1alpha1.DeliveryClusterTemplateReference{
+					reference := v1alpha12.DeliveryClusterTemplateReference{
 						Kind: "some-unsupported-kind",
 					}
 					_, err := repo.GetDeliveryClusterTemplate(reference)
@@ -462,7 +462,7 @@ spec:
 					cl.GetReturns(errors.New("some bad get error"))
 				})
 				It("returns a helpful error", func() {
-					reference := v1alpha1.DeliveryClusterTemplateReference{
+					reference := v1alpha12.DeliveryClusterTemplateReference{
 						Kind: "ClusterImageTemplate",
 						Name: "image-template",
 					}
@@ -507,10 +507,10 @@ spec:
 			})
 
 			Context("one matching delivery", func() {
-				var apiDelivery *v1alpha1.ClusterDelivery
+				var apiDelivery *v1alpha12.ClusterDelivery
 
 				BeforeEach(func() {
-					apiDelivery = &v1alpha1.ClusterDelivery{}
+					apiDelivery = &v1alpha12.ClusterDelivery{}
 					//nolint:staticcheck,ineffassign
 					cl.GetStub = func(_ context.Context, _ client.ObjectKey, obj client.Object) error {
 						obj = apiDelivery
@@ -552,7 +552,7 @@ spec:
 
 		BeforeEach(func() {
 			scheme = runtime.NewScheme()
-			Expect(v1alpha1.AddToScheme(scheme)).To(Succeed())
+			Expect(v1alpha12.AddToScheme(scheme)).To(Succeed())
 			Expect(v1.AddToScheme(scheme)).To(Succeed())
 		})
 
@@ -565,7 +565,7 @@ spec:
 
 		Context("GetClusterTemplate", func() {
 			BeforeEach(func() {
-				template := &v1alpha1.ClusterSourceTemplate{
+				template := &v1alpha12.ClusterSourceTemplate{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "some-name",
 					},
@@ -574,7 +574,7 @@ spec:
 			})
 
 			It("gets the template successfully", func() {
-				templateRef := v1alpha1.ClusterTemplateReference{
+				templateRef := v1alpha12.ClusterTemplateReference{
 					Kind: "ClusterSourceTemplate",
 					Name: "some-name",
 				}
@@ -586,7 +586,7 @@ spec:
 
 		Context("GetDeliveryClusterTemplate", func() {
 			BeforeEach(func() {
-				template := &v1alpha1.ClusterSourceTemplate{
+				template := &v1alpha12.ClusterSourceTemplate{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "some-name",
 					},
@@ -595,7 +595,7 @@ spec:
 			})
 
 			It("gets the template successfully", func() {
-				templateRef := v1alpha1.DeliveryClusterTemplateReference{
+				templateRef := v1alpha12.DeliveryClusterTemplateReference{
 					Kind: "ClusterSourceTemplate",
 					Name: "some-name",
 				}
@@ -608,12 +608,12 @@ spec:
 		Context("GetRunTemplate", func() {
 			BeforeEach(func() {
 				clientObjects = []client.Object{
-					&v1alpha1.ClusterRunTemplate{
+					&v1alpha12.ClusterRunTemplate{
 						ObjectMeta: metav1.ObjectMeta{
 							Name: "first-template",
 						},
 					},
-					&v1alpha1.ClusterRunTemplate{
+					&v1alpha12.ClusterRunTemplate{
 						ObjectMeta: metav1.ObjectMeta{
 							Name: "second-template",
 						},
@@ -621,7 +621,7 @@ spec:
 			})
 
 			It("gets the template successfully", func() {
-				templateRef := v1alpha1.TemplateReference{
+				templateRef := v1alpha12.TemplateReference{
 					Kind: "ClusterRunTemplate",
 					Name: "second-template",
 				}
@@ -633,7 +633,7 @@ spec:
 
 		Context("GetWorkload", func() {
 			BeforeEach(func() {
-				workload := &v1alpha1.Workload{
+				workload := &v1alpha12.Workload{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "workload-name",
 						Namespace: "workload-namespace",
@@ -659,7 +659,7 @@ spec:
 
 		Context("GetDeliverable", func() {
 			BeforeEach(func() {
-				deliverable := &v1alpha1.Deliverable{
+				deliverable := &v1alpha12.Deliverable{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "deliverable-name",
 						Namespace: "deliverable-namespace",
@@ -685,7 +685,7 @@ spec:
 
 		Context("GetPipeline", func() {
 			BeforeEach(func() {
-				pipeline := &v1alpha1.Pipeline{
+				pipeline := &v1alpha12.Pipeline{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "pipeline-name",
 						Namespace: "pipeline-namespace",
@@ -711,7 +711,7 @@ spec:
 
 		Context("GetSupplyChain", func() {
 			BeforeEach(func() {
-				supplyChain := &v1alpha1.ClusterSupplyChain{
+				supplyChain := &v1alpha12.ClusterSupplyChain{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "sc-name",
 					},
@@ -737,12 +737,12 @@ spec:
 		Context("GetSupplyChainsForWorkload", func() {
 			Context("One supply chain", func() {
 				BeforeEach(func() {
-					supplyChain := &v1alpha1.ClusterSupplyChain{
+					supplyChain := &v1alpha12.ClusterSupplyChain{
 						TypeMeta: metav1.TypeMeta{},
 						ObjectMeta: metav1.ObjectMeta{
 							Name: "supplychain-name",
 						},
-						Spec: v1alpha1.SupplyChainSpec{
+						Spec: v1alpha12.SupplyChainSpec{
 							Selector: map[string]string{"foo": "bar"},
 						},
 					}
@@ -750,14 +750,14 @@ spec:
 				})
 
 				It("returns supply chains for workload", func() {
-					workload := &v1alpha1.Workload{
+					workload := &v1alpha12.Workload{
 						TypeMeta: metav1.TypeMeta{},
 						ObjectMeta: metav1.ObjectMeta{
 							Name:   "workload-name",
 							Labels: map[string]string{"foo": "bar"},
 						},
-						Spec:   v1alpha1.WorkloadSpec{},
-						Status: v1alpha1.WorkloadStatus{},
+						Spec:   v1alpha12.WorkloadSpec{},
+						Status: v1alpha12.WorkloadStatus{},
 					}
 					supplyChains, err := repo.GetSupplyChainsForWorkload(workload)
 					Expect(err).ToNot(HaveOccurred())
@@ -768,21 +768,21 @@ spec:
 
 			Context("More than one supply chain", func() {
 				BeforeEach(func() {
-					supplyChain := &v1alpha1.ClusterSupplyChain{
+					supplyChain := &v1alpha12.ClusterSupplyChain{
 						TypeMeta: metav1.TypeMeta{},
 						ObjectMeta: metav1.ObjectMeta{
 							Name: "supplychain-name",
 						},
-						Spec: v1alpha1.SupplyChainSpec{
+						Spec: v1alpha12.SupplyChainSpec{
 							Selector: map[string]string{"foo": "bar"},
 						},
 					}
-					supplyChain2 := &v1alpha1.ClusterSupplyChain{
+					supplyChain2 := &v1alpha12.ClusterSupplyChain{
 						TypeMeta: metav1.TypeMeta{},
 						ObjectMeta: metav1.ObjectMeta{
 							Name: "supplychain-name2",
 						},
-						Spec: v1alpha1.SupplyChainSpec{
+						Spec: v1alpha12.SupplyChainSpec{
 							Selector: map[string]string{"foo": "baz"},
 						},
 					}
@@ -790,14 +790,14 @@ spec:
 				})
 
 				It("returns supply chains for workload", func() {
-					workload := &v1alpha1.Workload{
+					workload := &v1alpha12.Workload{
 						TypeMeta: metav1.TypeMeta{},
 						ObjectMeta: metav1.ObjectMeta{
 							Name:   "workload-name",
 							Labels: map[string]string{"foo": "bar"},
 						},
-						Spec:   v1alpha1.WorkloadSpec{},
-						Status: v1alpha1.WorkloadStatus{},
+						Spec:   v1alpha12.WorkloadSpec{},
+						Status: v1alpha12.WorkloadStatus{},
 					}
 					supplyChains, err := repo.GetSupplyChainsForWorkload(workload)
 					Expect(err).ToNot(HaveOccurred())
@@ -806,14 +806,14 @@ spec:
 				})
 
 				It("returns no supply chains for workload", func() {
-					workload := &v1alpha1.Workload{
+					workload := &v1alpha12.Workload{
 						TypeMeta: metav1.TypeMeta{},
 						ObjectMeta: metav1.ObjectMeta{
 							Name:   "workload-name",
 							Labels: map[string]string{"foo": "bat"},
 						},
-						Spec:   v1alpha1.WorkloadSpec{},
-						Status: v1alpha1.WorkloadStatus{},
+						Spec:   v1alpha12.WorkloadSpec{},
+						Status: v1alpha12.WorkloadStatus{},
 					}
 					supplyChains, err := repo.GetSupplyChainsForWorkload(workload)
 					Expect(err).ToNot(HaveOccurred())

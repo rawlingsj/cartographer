@@ -16,6 +16,7 @@ package supply_chain_test
 
 import (
 	"context"
+	"github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"io"
 	"os"
 	"path/filepath"
@@ -35,7 +36,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/root"
 	"github.com/vmware-tanzu/cartographer/tests/helpers"
 )

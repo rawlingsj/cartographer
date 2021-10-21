@@ -17,6 +17,7 @@ package deliverable
 import (
 	"context"
 	"fmt"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -24,7 +25,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/conditions"
 	realizer "github.com/vmware-tanzu/cartographer/pkg/realizer/deliverable"
 	"github.com/vmware-tanzu/cartographer/pkg/repository"
@@ -64,7 +64,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, fmt.Errorf("get deliverable: %w", err)
 	}
 
-	r.conditionManager = r.conditionManagerBuilder(v1alpha1.DeliverableReady, deliverable.Status.Conditions)
+	r.conditionManager = r.conditionManagerBuilder(v1alpha12.DeliverableReady, deliverable.Status.Conditions)
 
 	delivery, err := r.getDeliveriesForDeliverable(deliverable)
 	if err != nil {
@@ -110,7 +110,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	return r.completeReconciliation(deliverable, nil)
 }
 
-func (r *Reconciler) completeReconciliation(deliverable *v1alpha1.Deliverable, err error) (ctrl.Result, error) {
+func (r *Reconciler) completeReconciliation(deliverable *v1alpha12.Deliverable, err error) (ctrl.Result, error) {
 	var changed bool
 	deliverable.Status.Conditions, changed = r.conditionManager.Finalize()
 
@@ -137,7 +137,7 @@ func (r *Reconciler) completeReconciliation(deliverable *v1alpha1.Deliverable, e
 	return ctrl.Result{RequeueAfter: reconcileInterval}, nil
 }
 
-func (r *Reconciler) checkDeliveryReadiness(delivery *v1alpha1.ClusterDelivery) error {
+func (r *Reconciler) checkDeliveryReadiness(delivery *v1alpha12.ClusterDelivery) error {
 	readyCondition := getDeliveryReadyCondition(delivery)
 	if readyCondition.Status == "True" {
 		return nil
@@ -145,7 +145,7 @@ func (r *Reconciler) checkDeliveryReadiness(delivery *v1alpha1.ClusterDelivery) 
 	return fmt.Errorf("delivery is not in ready condition")
 }
 
-func getDeliveryReadyCondition(delivery *v1alpha1.ClusterDelivery) metav1.Condition {
+func getDeliveryReadyCondition(delivery *v1alpha12.ClusterDelivery) metav1.Condition {
 	for _, condition := range delivery.Status.Conditions {
 		if condition.Type == "Ready" {
 			return condition
@@ -154,7 +154,7 @@ func getDeliveryReadyCondition(delivery *v1alpha1.ClusterDelivery) metav1.Condit
 	return metav1.Condition{}
 }
 
-func (r *Reconciler) getDeliveriesForDeliverable(deliverable *v1alpha1.Deliverable) (*v1alpha1.ClusterDelivery, error) {
+func (r *Reconciler) getDeliveriesForDeliverable(deliverable *v1alpha12.Deliverable) (*v1alpha12.ClusterDelivery, error) {
 	if len(deliverable.Labels) == 0 {
 		r.conditionManager.AddPositive(DeliverableMissingLabelsCondition())
 		return nil, fmt.Errorf("deliverable is missing required labels")

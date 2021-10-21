@@ -16,17 +16,17 @@ package templates
 
 import (
 	"fmt"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/eval"
 )
 
 type Template interface {
-	GetResourceTemplate() v1alpha1.TemplateSpec
-	GetDefaultParams() v1alpha1.DefaultParams
+	GetResourceTemplate() v1alpha12.TemplateSpec
+	GetDefaultParams() v1alpha12.DefaultParams
 	GetOutput(stampedObject *unstructured.Unstructured) (*Output, error)
 	GetName() string
 	GetKind() string
@@ -35,15 +35,15 @@ type Template interface {
 func NewModelFromAPI(template client.Object) (Template, error) {
 	switch v := template.(type) {
 
-	case *v1alpha1.ClusterSourceTemplate:
+	case *v1alpha12.ClusterSourceTemplate:
 		return NewClusterSourceTemplateModel(v, eval.EvaluatorBuilder()), nil
-	case *v1alpha1.ClusterImageTemplate:
+	case *v1alpha12.ClusterImageTemplate:
 		return NewClusterImageTemplateModel(v, eval.EvaluatorBuilder()), nil
-	case *v1alpha1.ClusterConfigTemplate:
+	case *v1alpha12.ClusterConfigTemplate:
 		return NewClusterConfigTemplateModel(v, eval.EvaluatorBuilder()), nil
-	case *v1alpha1.ClusterDeploymentTemplate:
+	case *v1alpha12.ClusterDeploymentTemplate:
 		return NewClusterDeploymentTemplateModel(v, eval.EvaluatorBuilder()), nil
-	case *v1alpha1.ClusterTemplate:
+	case *v1alpha12.ClusterTemplate:
 		return NewClusterTemplateModel(v), nil
 	}
 	return nil, fmt.Errorf("component does not match a known template")

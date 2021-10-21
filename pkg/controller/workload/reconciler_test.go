@@ -17,6 +17,7 @@ package workload_test
 import (
 	"context"
 	"errors"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -33,7 +34,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/conditions"
 	"github.com/vmware-tanzu/cartographer/pkg/conditions/conditionsfakes"
 	"github.com/vmware-tanzu/cartographer/pkg/controller/workload"
@@ -54,7 +54,7 @@ var _ = Describe("Reconciler", func() {
 			repo             *repositoryfakes.FakeRepository
 			conditionManager *conditionsfakes.FakeConditionManager
 			rlzr             *workloadfakes.FakeRealizer
-			wl               *v1alpha1.Workload
+			wl               *v1alpha12.Workload
 			workloadLabels   map[string]string
 		)
 
@@ -88,7 +88,7 @@ var _ = Describe("Reconciler", func() {
 
 			workloadLabels = map[string]string{"some-key": "some-val"}
 
-			wl = &v1alpha1.Workload{
+			wl = &v1alpha12.Workload{
 				ObjectMeta: metav1.ObjectMeta{
 					Generation: 1,
 					Labels:     workloadLabels,
@@ -124,7 +124,7 @@ var _ = Describe("Reconciler", func() {
 
 			updatedWorkload := repo.StatusUpdateArgsForCall(0)
 
-			Expect(*updatedWorkload.(*v1alpha1.Workload)).To(MatchFields(IgnoreExtras, Fields{
+			Expect(*updatedWorkload.(*v1alpha12.Workload)).To(MatchFields(IgnoreExtras, Fields{
 				"Status": MatchFields(IgnoreExtras, Fields{
 					"ObservedGeneration": BeEquivalentTo(1),
 				}),
@@ -155,7 +155,7 @@ var _ = Describe("Reconciler", func() {
 
 			updatedWorkload := repo.StatusUpdateArgsForCall(0)
 
-			Expect(*updatedWorkload.(*v1alpha1.Workload)).To(MatchFields(IgnoreExtras, Fields{
+			Expect(*updatedWorkload.(*v1alpha12.Workload)).To(MatchFields(IgnoreExtras, Fields{
 				"Status": MatchFields(IgnoreExtras, Fields{
 					"Conditions": Equal(someConditions),
 				}),
@@ -171,15 +171,15 @@ var _ = Describe("Reconciler", func() {
 		Context("and the repo returns a single matching supply-chain for the workload", func() {
 			var (
 				supplyChainName string
-				supplyChain     v1alpha1.ClusterSupplyChain
+				supplyChain     v1alpha12.ClusterSupplyChain
 			)
 			BeforeEach(func() {
 				supplyChainName = "some-supply-chain"
-				supplyChain = v1alpha1.ClusterSupplyChain{
+				supplyChain = v1alpha12.ClusterSupplyChain{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: supplyChainName,
 					},
-					Status: v1alpha1.SupplyChainStatus{
+					Status: v1alpha12.SupplyChainStatus{
 						Conditions: []metav1.Condition{
 							{
 								Type:               "Ready",
@@ -191,7 +191,7 @@ var _ = Describe("Reconciler", func() {
 						},
 					},
 				}
-				repo.GetSupplyChainsForWorkloadReturns([]v1alpha1.ClusterSupplyChain{supplyChain}, nil)
+				repo.GetSupplyChainsForWorkloadReturns([]v1alpha12.ClusterSupplyChain{supplyChain}, nil)
 			})
 
 			It("reschedules for 5 seconds", func() {
@@ -239,7 +239,7 @@ var _ = Describe("Reconciler", func() {
 							Message: "some informative message",
 						},
 					}
-					repo.GetSupplyChainsForWorkloadReturns([]v1alpha1.ClusterSupplyChain{supplyChain}, nil)
+					repo.GetSupplyChainsForWorkloadReturns([]v1alpha12.ClusterSupplyChain{supplyChain}, nil)
 				})
 				It("returns a helpful error", func() {
 					_, err := reconciler.Reconcile(ctx, req)
@@ -250,7 +250,7 @@ var _ = Describe("Reconciler", func() {
 				It("calls the condition manager to report supply chain not ready", func() {
 					_, _ = reconciler.Reconcile(ctx, req)
 					expectedCondition := metav1.Condition{
-						Type:               v1alpha1.WorkloadSupplyChainReady,
+						Type:               v1alpha12.WorkloadSupplyChainReady,
 						Status:             metav1.ConditionFalse,
 						ObservedGeneration: 0,
 						LastTransitionTime: metav1.Time{},
@@ -287,7 +287,7 @@ var _ = Describe("Reconciler", func() {
 					BeforeEach(func() {
 						stampError = realizer.StampError{
 							Err:       errors.New("some error"),
-							Component: &v1alpha1.SupplyChainComponent{Name: "some-name"},
+							Component: &v1alpha12.SupplyChainComponent{Name: "some-name"},
 						}
 						rlzr.RealizeReturns(stampError)
 					})
@@ -329,7 +329,7 @@ var _ = Describe("Reconciler", func() {
 					BeforeEach(func() {
 						jsonPathError := templates.NewJsonPathError("this.wont.find.anything", errors.New("some error"))
 						retrieveError = realizer.NewRetrieveOutputError(
-							&v1alpha1.SupplyChainComponent{Name: "some-component"},
+							&v1alpha12.SupplyChainComponent{Name: "some-component"},
 							&jsonPathError)
 						rlzr.RealizeReturns(retrieveError)
 					})
@@ -452,8 +452,8 @@ var _ = Describe("Reconciler", func() {
 
 		Context("and the repo returns multiple supply chains", func() {
 			BeforeEach(func() {
-				supplyChain := v1alpha1.ClusterSupplyChain{}
-				repo.GetSupplyChainsForWorkloadReturns([]v1alpha1.ClusterSupplyChain{supplyChain, supplyChain}, nil)
+				supplyChain := v1alpha12.ClusterSupplyChain{}
+				repo.GetSupplyChainsForWorkloadReturns([]v1alpha12.ClusterSupplyChain{supplyChain, supplyChain}, nil)
 			})
 
 			It("calls the condition manager to report too mane supply chains matched", func() {

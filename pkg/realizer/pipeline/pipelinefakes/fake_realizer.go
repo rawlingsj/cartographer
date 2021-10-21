@@ -3,10 +3,10 @@ package pipelinefakes
 
 import (
 	"context"
+	"github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"sync"
 
 	"github.com/go-logr/logr"
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/realizer/pipeline"
 	"github.com/vmware-tanzu/cartographer/pkg/repository"
 	"github.com/vmware-tanzu/cartographer/pkg/templates"

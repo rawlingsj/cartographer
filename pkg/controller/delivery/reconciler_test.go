@@ -17,6 +17,7 @@ package delivery_test
 import (
 	"context"
 	"errors"
+	"github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -30,7 +31,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/controller/delivery"
 	"github.com/vmware-tanzu/cartographer/pkg/repository/repositoryfakes"
 )

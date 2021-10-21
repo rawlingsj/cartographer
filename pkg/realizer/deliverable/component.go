@@ -16,8 +16,8 @@ package deliverable
 
 import (
 	"context"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/repository"
 	"github.com/vmware-tanzu/cartographer/pkg/templates"
 )
@@ -26,22 +26,22 @@ import (
 
 //counterfeiter:generate . ResourceRealizer
 type ResourceRealizer interface {
-	Do(ctx context.Context, resource *v1alpha1.ClusterDeliveryResource, deliveryName string, outputs Outputs) (*templates.Output, error)
+	Do(ctx context.Context, resource *v1alpha12.ClusterDeliveryResource, deliveryName string, outputs Outputs) (*templates.Output, error)
 }
 
 type resourceRealizer struct {
-	deliverable *v1alpha1.Deliverable
+	deliverable *v1alpha12.Deliverable
 	repo        repository.Repository
 }
 
-func NewResourceRealizer(deliverable *v1alpha1.Deliverable, repo repository.Repository) ResourceRealizer {
+func NewResourceRealizer(deliverable *v1alpha12.Deliverable, repo repository.Repository) ResourceRealizer {
 	return &resourceRealizer{
 		deliverable: deliverable,
 		repo:        repo,
 	}
 }
 
-func (r *resourceRealizer) Do(ctx context.Context, resource *v1alpha1.ClusterDeliveryResource, deliveryName string, outputs Outputs) (*templates.Output, error) {
+func (r *resourceRealizer) Do(ctx context.Context, resource *v1alpha12.ClusterDeliveryResource, deliveryName string, outputs Outputs) (*templates.Output, error) {
 	template, err := r.repo.GetDeliveryClusterTemplate(resource.TemplateRef)
 	if err != nil {
 		return nil, GetDeliveryClusterTemplateError{

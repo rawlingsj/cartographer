@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 
 	. "github.com/MakeNowJust/heredoc/dot"
 	"github.com/go-logr/logr"
@@ -32,7 +33,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	realizer "github.com/vmware-tanzu/cartographer/pkg/realizer/pipeline"
 	"github.com/vmware-tanzu/cartographer/pkg/repository/repositoryfakes"
 	"github.com/vmware-tanzu/cartographer/pkg/templates"
@@ -45,7 +45,7 @@ var _ = Describe("Realizer", func() {
 		repository          *repositoryfakes.FakeRepository
 		logger              logr.Logger
 		rlzr                realizer.Realizer
-		pipeline            *v1alpha1.Pipeline
+		pipeline            *v1alpha12.Pipeline
 		createdUnstructured *unstructured.Unstructured
 	)
 
@@ -55,9 +55,9 @@ var _ = Describe("Realizer", func() {
 		repository = &repositoryfakes.FakeRepository{}
 		rlzr = realizer.NewRealizer()
 
-		pipeline = &v1alpha1.Pipeline{
-			Spec: v1alpha1.PipelineSpec{
-				RunTemplateRef: v1alpha1.TemplateReference{
+		pipeline = &v1alpha12.Pipeline{
+			Spec: v1alpha12.PipelineSpec{
+				RunTemplateRef: v1alpha12.TemplateReference{
 					Kind: "ClusterRunTemplate",
 					Name: "my-template",
 				},
@@ -92,8 +92,8 @@ var _ = Describe("Realizer", func() {
 			dbytes, err := json.Marshal(testObj)
 			Expect(err).ToNot(HaveOccurred())
 
-			var templateAPI = &v1alpha1.ClusterRunTemplate{
-				Spec: v1alpha1.ClusterRunTemplateSpec{
+			var templateAPI = &v1alpha12.ClusterRunTemplate{
+				Spec: v1alpha12.ClusterRunTemplateSpec{
 					Outputs: map[string]string{
 						"myout": "spec.foo",
 					},
@@ -222,8 +222,8 @@ var _ = Describe("Realizer", func() {
 
 		Context("pipeline selector resolves successfully", func() {
 			BeforeEach(func() {
-				pipeline.Spec.Selector = &v1alpha1.ResourceSelector{
-					Resource: v1alpha1.ResourceType{
+				pipeline.Spec.Selector = &v1alpha12.ResourceSelector{
+					Resource: v1alpha12.ResourceType{
 						APIVersion: "apiversion-to-be-selected",
 						Kind:       "kind-to-be-selected",
 					},
@@ -263,8 +263,8 @@ var _ = Describe("Realizer", func() {
 
 		Context("pipeline selector matches too many objects", func() {
 			BeforeEach(func() {
-				pipeline.Spec.Selector = &v1alpha1.ResourceSelector{
-					Resource: v1alpha1.ResourceType{
+				pipeline.Spec.Selector = &v1alpha12.ResourceSelector{
+					Resource: v1alpha12.ResourceType{
 						APIVersion: "apiversion-to-be-selected",
 						Kind:       "kind-to-be-selected",
 					},
@@ -296,8 +296,8 @@ var _ = Describe("Realizer", func() {
 
 		Context("pipeline selector does not match any objects", func() {
 			BeforeEach(func() {
-				pipeline.Spec.Selector = &v1alpha1.ResourceSelector{
-					Resource: v1alpha1.ResourceType{
+				pipeline.Spec.Selector = &v1alpha12.ResourceSelector{
+					Resource: v1alpha12.ResourceType{
 						APIVersion: "apiversion-to-be-selected",
 						Kind:       "kind-to-be-selected",
 					},
@@ -329,8 +329,8 @@ var _ = Describe("Realizer", func() {
 
 		Context("pipeline selector cannot be resolved", func() {
 			BeforeEach(func() {
-				pipeline.Spec.Selector = &v1alpha1.ResourceSelector{
-					Resource: v1alpha1.ResourceType{
+				pipeline.Spec.Selector = &v1alpha12.ResourceSelector{
+					Resource: v1alpha12.ResourceType{
 						APIVersion: "apiversion-to-be-selected",
 						Kind:       "kind-to-be-selected",
 					},
@@ -363,8 +363,8 @@ var _ = Describe("Realizer", func() {
 
 	Context("with unsatisfied output paths", func() {
 		BeforeEach(func() {
-			templateAPI := &v1alpha1.ClusterRunTemplate{
-				Spec: v1alpha1.ClusterRunTemplateSpec{
+			templateAPI := &v1alpha12.ClusterRunTemplate{
+				Spec: v1alpha12.ClusterRunTemplateSpec{
 					Outputs: map[string]string{
 						"myout": "data.hasnot",
 					},
@@ -419,8 +419,8 @@ var _ = Describe("Realizer", func() {
 
 	Context("with an invalid ClusterRunTemplate", func() {
 		BeforeEach(func() {
-			templateAPI := &v1alpha1.ClusterRunTemplate{
-				Spec: v1alpha1.ClusterRunTemplateSpec{
+			templateAPI := &v1alpha12.ClusterRunTemplate{
+				Spec: v1alpha12.ClusterRunTemplateSpec{
 					Template: runtime.RawExtension{},
 				},
 			}
@@ -454,9 +454,9 @@ var _ = Describe("Realizer", func() {
 		BeforeEach(func() {
 			repository.GetRunTemplateReturns(nil, errors.New("Errol mcErrorFace"))
 
-			pipeline = &v1alpha1.Pipeline{
-				Spec: v1alpha1.PipelineSpec{
-					RunTemplateRef: v1alpha1.TemplateReference{
+			pipeline = &v1alpha12.Pipeline{
+				Spec: v1alpha12.PipelineSpec{
+					RunTemplateRef: v1alpha12.TemplateReference{
 						Kind: "ClusterRunTemplate",
 						Name: "my-template",
 					},

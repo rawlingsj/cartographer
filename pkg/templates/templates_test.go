@@ -17,9 +17,9 @@ package templates_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/templates"
 )
 
@@ -50,7 +50,7 @@ var _ = Describe("Templates", func() {
 	Describe("NewModelFromAPI", func() {
 		Context("when passed a ClusterSourceTemplate", func() {
 			BeforeEach(func() {
-				apiTemplate = &v1alpha1.ClusterSourceTemplate{}
+				apiTemplate = &v1alpha12.ClusterSourceTemplate{}
 			})
 
 			ItDoesNotReturnAnError()
@@ -61,7 +61,7 @@ var _ = Describe("Templates", func() {
 		})
 		Context("when passed a ClusterImageTemplate", func() {
 			BeforeEach(func() {
-				apiTemplate = &v1alpha1.ClusterImageTemplate{}
+				apiTemplate = &v1alpha12.ClusterImageTemplate{}
 			})
 
 			ItDoesNotReturnAnError()
@@ -72,7 +72,7 @@ var _ = Describe("Templates", func() {
 		})
 		Context("when passed a ClusterConfigTemplate", func() {
 			BeforeEach(func() {
-				apiTemplate = &v1alpha1.ClusterConfigTemplate{}
+				apiTemplate = &v1alpha12.ClusterConfigTemplate{}
 			})
 
 			ItDoesNotReturnAnError()
@@ -84,7 +84,7 @@ var _ = Describe("Templates", func() {
 
 		Context("when passed a ClusterTemplate", func() {
 			BeforeEach(func() {
-				apiTemplate = &v1alpha1.ClusterTemplate{}
+				apiTemplate = &v1alpha12.ClusterTemplate{}
 			})
 
 			ItDoesNotReturnAnError()
@@ -96,7 +96,7 @@ var _ = Describe("Templates", func() {
 
 		Context("when passed an unsupported object", func() {
 			BeforeEach(func() {
-				apiTemplate = &v1alpha1.Workload{}
+				apiTemplate = &v1alpha12.Workload{}
 			})
 
 			ItReturnsAHelpfulError("component does not match a known template")

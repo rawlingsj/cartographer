@@ -16,6 +16,7 @@ package supply_chain_test
 
 import (
 	"context"
+	"github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 
 	. "github.com/MakeNowJust/heredoc/dot"
 	. "github.com/onsi/ginkgo"
@@ -26,8 +27,6 @@ import (
 	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/yaml"
-
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 )
 
 var _ = Describe("SupplyChainValidation", func() {

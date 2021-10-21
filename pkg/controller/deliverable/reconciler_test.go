@@ -17,6 +17,7 @@ package deliverable_test
 import (
 	"context"
 	"errors"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -33,7 +34,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/conditions"
 	"github.com/vmware-tanzu/cartographer/pkg/conditions/conditionsfakes"
 	"github.com/vmware-tanzu/cartographer/pkg/controller/deliverable"
@@ -54,7 +54,7 @@ var _ = Describe("Reconciler", func() {
 			repo              *repositoryfakes.FakeRepository
 			conditionManager  *conditionsfakes.FakeConditionManager
 			rlzr              *deliverablefakes.FakeRealizer
-			dl                *v1alpha1.Deliverable
+			dl                *v1alpha12.Deliverable
 			deliverableLabels map[string]string
 		)
 
@@ -88,7 +88,7 @@ var _ = Describe("Reconciler", func() {
 
 			deliverableLabels = map[string]string{"some-key": "some-val"}
 
-			dl = &v1alpha1.Deliverable{
+			dl = &v1alpha12.Deliverable{
 				ObjectMeta: metav1.ObjectMeta{
 					Generation: 1,
 					Labels:     deliverableLabels,
@@ -124,7 +124,7 @@ var _ = Describe("Reconciler", func() {
 
 			updatedDeliverable := repo.StatusUpdateArgsForCall(0)
 
-			Expect(*updatedDeliverable.(*v1alpha1.Deliverable)).To(MatchFields(IgnoreExtras, Fields{
+			Expect(*updatedDeliverable.(*v1alpha12.Deliverable)).To(MatchFields(IgnoreExtras, Fields{
 				"Status": MatchFields(IgnoreExtras, Fields{
 					"ObservedGeneration": BeEquivalentTo(1),
 				}),
@@ -155,7 +155,7 @@ var _ = Describe("Reconciler", func() {
 
 			updatedDeliverable := repo.StatusUpdateArgsForCall(0)
 
-			Expect(*updatedDeliverable.(*v1alpha1.Deliverable)).To(MatchFields(IgnoreExtras, Fields{
+			Expect(*updatedDeliverable.(*v1alpha12.Deliverable)).To(MatchFields(IgnoreExtras, Fields{
 				"Status": MatchFields(IgnoreExtras, Fields{
 					"Conditions": Equal(someConditions),
 				}),
@@ -171,15 +171,15 @@ var _ = Describe("Reconciler", func() {
 		Context("and the repo returns a single matching delivery for the deliverable", func() {
 			var (
 				deliveryName string
-				delivery     v1alpha1.ClusterDelivery
+				delivery     v1alpha12.ClusterDelivery
 			)
 			BeforeEach(func() {
 				deliveryName = "some-delivery"
-				delivery = v1alpha1.ClusterDelivery{
+				delivery = v1alpha12.ClusterDelivery{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: deliveryName,
 					},
-					Status: v1alpha1.ClusterDeliveryStatus{
+					Status: v1alpha12.ClusterDeliveryStatus{
 						Conditions: []metav1.Condition{
 							{
 								Type:               "Ready",
@@ -191,7 +191,7 @@ var _ = Describe("Reconciler", func() {
 						},
 					},
 				}
-				repo.GetDeliveriesForDeliverableReturns([]v1alpha1.ClusterDelivery{delivery}, nil)
+				repo.GetDeliveriesForDeliverableReturns([]v1alpha12.ClusterDelivery{delivery}, nil)
 			})
 
 			It("reschedules for 5 seconds", func() {
@@ -239,7 +239,7 @@ var _ = Describe("Reconciler", func() {
 							Message: "some informative message",
 						},
 					}
-					repo.GetDeliveriesForDeliverableReturns([]v1alpha1.ClusterDelivery{delivery}, nil)
+					repo.GetDeliveriesForDeliverableReturns([]v1alpha12.ClusterDelivery{delivery}, nil)
 				})
 				It("returns a helpful error", func() {
 					_, err := reconciler.Reconcile(ctx, req)
@@ -250,7 +250,7 @@ var _ = Describe("Reconciler", func() {
 				It("calls the condition manager to report delivery not ready", func() {
 					_, _ = reconciler.Reconcile(ctx, req)
 					expectedCondition := metav1.Condition{
-						Type:               v1alpha1.DeliverableDeliveryReady,
+						Type:               v1alpha12.DeliverableDeliveryReady,
 						Status:             metav1.ConditionFalse,
 						ObservedGeneration: 0,
 						LastTransitionTime: metav1.Time{},
@@ -287,7 +287,7 @@ var _ = Describe("Reconciler", func() {
 					BeforeEach(func() {
 						stampError = realizer.StampError{
 							Err:      errors.New("some error"),
-							Resource: &v1alpha1.ClusterDeliveryResource{Name: "some-name"},
+							Resource: &v1alpha12.ClusterDeliveryResource{Name: "some-name"},
 						}
 						rlzr.RealizeReturns(stampError)
 					})
@@ -329,7 +329,7 @@ var _ = Describe("Reconciler", func() {
 					BeforeEach(func() {
 						jsonPathError := templates.NewJsonPathError("this.wont.find.anything", errors.New("some error"))
 						retrieveError = realizer.NewRetrieveOutputError(
-							&v1alpha1.ClusterDeliveryResource{Name: "some-resource"},
+							&v1alpha12.ClusterDeliveryResource{Name: "some-resource"},
 							&jsonPathError)
 						rlzr.RealizeReturns(retrieveError)
 					})
@@ -452,8 +452,8 @@ var _ = Describe("Reconciler", func() {
 
 		Context("and the repo returns multiple deliveries", func() {
 			BeforeEach(func() {
-				delivery := v1alpha1.ClusterDelivery{}
-				repo.GetDeliveriesForDeliverableReturns([]v1alpha1.ClusterDelivery{delivery, delivery}, nil)
+				delivery := v1alpha12.ClusterDelivery{}
+				repo.GetDeliveriesForDeliverableReturns([]v1alpha12.ClusterDelivery{delivery, delivery}, nil)
 			})
 
 			It("calls the condition manager to report too mane deliveries matched", func() {

@@ -17,6 +17,7 @@ package root
 import (
 	"context"
 	"fmt"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -25,7 +26,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/registrar"
 )
 
@@ -73,32 +73,32 @@ func (cmd *Command) Execute() error {
 		l.Info("Not registering the webhook server. Must pass a directory containing tls.crt and tls.key to --cert-dir")
 	} else {
 		if err := controllerruntime.NewWebhookManagedBy(mgr).
-			For(&v1alpha1.ClusterSupplyChain{}).
+			For(&v1alpha12.ClusterSupplyChain{}).
 			Complete(); err != nil {
 			return fmt.Errorf("clustersupplychain webhook: %w", err)
 		}
 		if err := controllerruntime.NewWebhookManagedBy(mgr).
-			For(&v1alpha1.ClusterConfigTemplate{}).
+			For(&v1alpha12.ClusterConfigTemplate{}).
 			Complete(); err != nil {
 			return fmt.Errorf("clusterconfigtemplate webhook: %w", err)
 		}
 		if err := controllerruntime.NewWebhookManagedBy(mgr).
-			For(&v1alpha1.ClusterImageTemplate{}).
+			For(&v1alpha12.ClusterImageTemplate{}).
 			Complete(); err != nil {
 			return fmt.Errorf("clusterimagetemplate webhook: %w", err)
 		}
 		if err := controllerruntime.NewWebhookManagedBy(mgr).
-			For(&v1alpha1.ClusterSourceTemplate{}).
+			For(&v1alpha12.ClusterSourceTemplate{}).
 			Complete(); err != nil {
 			return fmt.Errorf("clustersourcetemplate webhook: %w", err)
 		}
 		if err := controllerruntime.NewWebhookManagedBy(mgr).
-			For(&v1alpha1.ClusterTemplate{}).
+			For(&v1alpha12.ClusterTemplate{}).
 			Complete(); err != nil {
 			return fmt.Errorf("clustertemplate webhook: %w", err)
 		}
 		if err := controllerruntime.NewWebhookManagedBy(mgr).
-			For(&v1alpha1.ClusterDelivery{}).
+			For(&v1alpha12.ClusterDelivery{}).
 			Complete(); err != nil {
 			return fmt.Errorf("clusterdelivery webhook: %w", err)
 		}

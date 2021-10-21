@@ -16,11 +16,10 @@ package supplychain
 
 import (
 	"fmt"
+	"github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 )
 
 func TemplatesNotFoundCondition(componentNames []string) metav1.Condition {

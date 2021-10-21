@@ -16,8 +16,8 @@ package workload
 
 import (
 	"context"
+	v1alpha12 "github.com/vmware-tanzu/cartographer/pkg/apis/carto/v1alpha1"
 
-	"github.com/vmware-tanzu/cartographer/pkg/apis/v1alpha1"
 	"github.com/vmware-tanzu/cartographer/pkg/repository"
 	"github.com/vmware-tanzu/cartographer/pkg/templates"
 )
@@ -26,22 +26,22 @@ import (
 
 //counterfeiter:generate . ComponentRealizer
 type ComponentRealizer interface {
-	Do(ctx context.Context, component *v1alpha1.SupplyChainComponent, supplyChainName string, outputs Outputs) (*templates.Output, error)
+	Do(ctx context.Context, component *v1alpha12.SupplyChainComponent, supplyChainName string, outputs Outputs) (*templates.Output, error)
 }
 
 type componentRealizer struct {
-	workload *v1alpha1.Workload
+	workload *v1alpha12.Workload
 	repo     repository.Repository
 }
 
-func NewComponentRealizer(workload *v1alpha1.Workload, repo repository.Repository) ComponentRealizer {
+func NewComponentRealizer(workload *v1alpha12.Workload, repo repository.Repository) ComponentRealizer {
 	return &componentRealizer{
 		workload: workload,
 		repo:     repo,
 	}
 }
 
-func (r *componentRealizer) Do(ctx context.Context, component *v1alpha1.SupplyChainComponent, supplyChainName string, outputs Outputs) (*templates.Output, error) {
+func (r *componentRealizer) Do(ctx context.Context, component *v1alpha12.SupplyChainComponent, supplyChainName string, outputs Outputs) (*templates.Output, error) {
 	template, err := r.repo.GetClusterTemplate(component.TemplateRef)
 	if err != nil {
 		return nil, GetClusterTemplateError{
